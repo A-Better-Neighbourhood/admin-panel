@@ -1,7 +1,7 @@
 import conf from "../conf/conf";
 import { Client, ID, Databases, Storage, Query, Models } from "appwrite";
 
-export interface Post {
+export interface Post extends Models.Document {
   title: string;
   slug: string;
   content: string;
@@ -9,6 +9,17 @@ export interface Post {
   featuredMap?: string;
   status: "active" | "inactive";
   userId: string;
+  location?: { lat: number; lng: number };
+}
+
+export interface PostInput {
+  title: string;
+  slug: string;
+  content: string;
+  status: "active" | "inactive";
+  featuredImage?: string;
+  userId: string;
+  location?: { lat: number; lng: number };
 }
 
 export class Service {
@@ -25,12 +36,12 @@ export class Service {
     this.bucket = new Storage(this.client);
   }
 
-  async createPost(post: Post): Promise<Models.Document | undefined> {
+  async createPost(post: PostInput): Promise<Post | undefined> {
     try {
-      return await this.databases.createDocument(
+      return await this.databases.createDocument<Post>(
         conf.appwriteDatabaseId,
         conf.appwriteCollectionId,
-        post.slug,
+        ID.unique(),
         post
       );
     } catch (error) {
@@ -41,9 +52,9 @@ export class Service {
   async updatePost(
     slug: string,
     data: Partial<Omit<Post, "slug" | "userId">>
-  ): Promise<Models.Document | undefined> {
+  ): Promise<Post | undefined> {
     try {
-      return await this.databases.updateDocument(
+      return await this.databases.updateDocument<Post>(
         conf.appwriteDatabaseId,
         conf.appwriteCollectionId,
         slug,
@@ -68,9 +79,9 @@ export class Service {
     }
   }
 
-  async getPost(slug: string): Promise<Models.Document | false> {
+  async getPost(slug: string): Promise<Post | false> {
     try {
-      return await this.databases.getDocument(
+      return await this.databases.getDocument<Post>(
         conf.appwriteDatabaseId,
         conf.appwriteCollectionId,
         slug
@@ -83,9 +94,9 @@ export class Service {
 
   async getPosts(
     queries: string[] = [Query.equal("status", "active")]
-  ): Promise<Models.DocumentList<Models.Document> | false> {
+  ): Promise<Models.DocumentList<Post> | false> {
     try {
-      return await this.databases.listDocuments(
+      return await this.databases.listDocuments<Post>(
         conf.appwriteDatabaseId,
         conf.appwriteCollectionId,
         queries
@@ -121,8 +132,9 @@ export class Service {
   }
 
   getFilePreview(fileId: string): string {
-    return this.bucket.getFileView(conf.appwriteBucketId, fileId);
+  return this.bucket.getFileView(conf.appwriteBucketId, fileId);
   }
+
 }
 
 const service = new Service();

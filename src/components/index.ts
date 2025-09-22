@@ -1,31 +1,33 @@
-// import Select from "./Select";
-// import Header from "./Header/Header";
-// import Footer from "./Footer/Footer";
-// import Container from "./container/container";
+import Select from "./select";
+import Header from "./header/header";
+import Footer from "./footer/footer";
+import Container from "./container/container";
 import Logo from "./logo";
 // import LogoutBtn from "./Header/LogoutBtn";
 // import RTE from "./RTE";
 import Signup from "./signUp";
 import Login from "./login";
 import Button from "./button";
-// import PostForm from "./post-form/PostForm";
-// import PostCard from "./PostCard";
-// import AuthLayout from "./AuthLayout";
+import PostForm from "./postForm/postForm";
+import PostCard from "./postCard";
+import AuthLayout from "./authLayout";
 import Input from "./input";
+import CameraCapture from "./captureCamera"
 
 export {
-    // Header,
-    // Footer,
-    // Container,
+    Header,
+    Footer,
+    Container,
     Logo,
     // LogoutBtn,
     // RTE,
+    CameraCapture,
     Signup,
     Login,
     Button,
-    // PostForm,
-    // PostCard,
-    // AuthLayout, 
+    PostForm,
+    PostCard,
+    AuthLayout, 
     Input,
-    // Select,
+    Select,
 };
