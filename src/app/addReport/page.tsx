@@ -63,6 +63,7 @@ export default function AddReportPage() {
         <div className="mb-4">
           <label className="block font-semibold mb-1">Location:</label>
           <div className="text-gray-700 mb-2">
+            {locationName && <span className="block font-medium">Address: {locationName}</span>}
             {road && <span>Road: {road} <br /></span>}
             <span>Lat: {location.lat}, Lng: {location.lng}</span>
           </div>

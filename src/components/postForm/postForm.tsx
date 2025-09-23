@@ -3,13 +3,37 @@
 import React, { useCallback, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Button, Input, Select } from "..";
-import appwriteService from "../../appwrite/config";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { useRouter } from "next/navigation";
 import CameraCaptureWithLocation from "../captureCamera";
 
-import type { Post, PostInput } from "../../appwrite/config";
+
+
+// Local Post and PostInput types
+export interface Post {
+  $id: string;
+  title: string;
+  slug: string;
+  content: string;
+  status: string;
+  featuredImage?: string;
+  userId: string;
+  location?: { lat: number; lng: number };
+  road?: string;
+  upvotes?: number;
+}
+export interface PostInput {
+  title: string;
+  slug: string;
+  content: string;
+  status: string;
+  featuredImage?: string;
+  userId: string;
+  location?: { lat: number; lng: number };
+  road?: string;
+  upvotes?: number;
+}
 
 interface PostFormProps {
   post?: Post;
@@ -19,7 +43,7 @@ interface FormValues {
   title: string;
   slug: string;
   content: string;
-  status: "active" | "inactive";
+  status: string;
   image?: string;
   location?: { lat: number; lng: number };
 }
@@ -76,30 +100,33 @@ const PostForm: React.FC<PostFormProps> = ({ post }) => {
       return;
     }
 
+
     let fileId: string | undefined;
     if (data.image) {
-      const fileObj = base64ToFile(data.image, "featured.jpg");
-      const file = await appwriteService.uploadFile(fileObj);
-      if (file) fileId = file.$id;
+      // For local: just use the base64 string as the image
+      fileId = data.image;
     }
+
 
     const payload: PostInput = {
       title: data.title,
       slug: data.slug,
       content: data.content,
       status: data.status,
-      featuredImage: fileId || post?.featuredImage || undefined, // ✅ allow undefined
-      userId: userData.$id, // ✅ safe now because we check userData above
+      featuredImage: fileId || post?.featuredImage || undefined,
+      userId: userData.$id,
       location: data.location,
     };
 
     try {
       if (post) {
-        const updatedPost = await appwriteService.updatePost(post.$id, payload);
-        if (updatedPost) router.push(`/post/${updatedPost.$id}`);
+        // Local update: just log and redirect
+        const updatedPost = { ...post, ...payload };
+        router.push(`/post/${updatedPost.$id}`);
       } else {
-        const newPost = await appwriteService.createPost(payload);
-        if (newPost) router.push(`/post/${newPost.$id}`);
+        // Local create: generate a fake id and redirect
+        const newPost = { $id: Date.now().toString(), ...payload };
+        router.push(`/post/${newPost.$id}`);
       }
     } catch (err) {
       console.error("Error creating/updating post:", err);
@@ -163,7 +190,7 @@ const PostForm: React.FC<PostFormProps> = ({ post }) => {
         {post?.featuredImage && (
           <div className="w-full mb-2 flex flex-col items-center">
             <img
-              src={appwriteService.getFilePreview(post.featuredImage)}
+              src={post.featuredImage}
               alt={post.title}
               className="rounded-xl shadow-lg border border-gray-200 max-h-48 object-cover"
             />

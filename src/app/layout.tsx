@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -26,9 +25,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-blue-100`}>
         <Providers>
-          <Header />
-          <main className="flex-1 py-10 px-2 md:px-0 bg-gradient-to-br from-blue-50 via-yellow-50 to-blue-100 animate-fade-in shadow-inner">{children}</main>
-          <Footer />
+          {/* <Header /> (individual layouts handle header) */}
+          <main className="flex-1 flex flex-col py-10 px-2 md:px-0 bg-gradient-to-br from-blue-50 via-yellow-50 to-blue-100 animate-fade-in shadow-inner">{children}</main>
+          
         </Providers>
       </body>
     </html>
