@@ -1,14 +1,14 @@
 /** @format */
 
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/components/theme-provider";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const notoSans = Noto_Sans({variable:'--font-sans'});
 
 export const metadata: Metadata = {
   title: "Admin Panel - Issue Management",
@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn(inter.variable + " antialiased", inter.variable)}
+      className={cn(notoSans.variable + " antialiased", notoSans.variable)}
       suppressHydrationWarning
     >
       <body>
