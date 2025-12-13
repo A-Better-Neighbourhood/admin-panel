@@ -15,8 +15,7 @@ export default function PriorityReportsPage() {
 
   const loadPriorityIssues = async () => {
     try {
-      const token = "your-auth-token";
-      const allIssues = await issuesAPI.getAllIssues(token);
+      const allIssues = await issuesAPI.getAllIssues();
 
       // Calculate current time once
       const now = Date.now();
@@ -31,9 +30,11 @@ export default function PriorityReportsPage() {
         .sort((a, b) => {
           // Sort by upvotes and recency
           const scoreA =
-            a.upvotes * 2 + (now - new Date(a.createdAt).getTime()) / 1000000;
+            a.upvoteCount * 2 +
+            (now - new Date(a.createdAt).getTime()) / 1000000;
           const scoreB =
-            b.upvotes * 2 + (now - new Date(b.createdAt).getTime()) / 1000000;
+            b.upvoteCount * 2 +
+            (now - new Date(b.createdAt).getTime()) / 1000000;
           return scoreB - scoreA;
         })
         .slice(0, 20); // Top 20 priority issues
@@ -51,8 +52,7 @@ export default function PriorityReportsPage() {
     status: Issue["status"]
   ) => {
     try {
-      const token = "your-auth-token";
-      await issuesAPI.updateIssueStatus(issueId, status, token);
+      await issuesAPI.updateIssueStatus(issueId, status);
       setIssues(
         issues.map((issue) =>
           issue.id === issueId ? { ...issue, status } : issue
@@ -67,8 +67,7 @@ export default function PriorityReportsPage() {
     if (!confirm("Are you sure you want to delete this report?")) return;
 
     try {
-      const token = "your-auth-token";
-      await issuesAPI.deleteIssue(issueId, token);
+      await issuesAPI.deleteIssue(issueId);
       setIssues(issues.filter((issue) => issue.id !== issueId));
     } catch (error) {
       console.error("Failed to delete issue:", error);

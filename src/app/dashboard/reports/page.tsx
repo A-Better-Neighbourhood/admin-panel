@@ -26,9 +26,7 @@ export default function ReportsPage() {
 
   const loadIssues = async () => {
     try {
-      // Replace with actual auth token from your auth context
-      const token = "your-auth-token";
-      const data = await issuesAPI.getAllIssues(token);
+      const data = await issuesAPI.getAllIssues();
       setIssues(data);
     } catch (error) {
       console.error("Failed to load issues:", error);
@@ -77,8 +75,7 @@ export default function ReportsPage() {
     status: Issue["status"]
   ) => {
     try {
-      const token = "your-auth-token";
-      await issuesAPI.updateIssueStatus(issueId, status, token);
+      await issuesAPI.updateIssueStatus(issueId, status);
       setIssues(
         issues.map((issue) =>
           issue.id === issueId ? { ...issue, status } : issue
@@ -93,8 +90,7 @@ export default function ReportsPage() {
     if (!confirm("Are you sure you want to delete this report?")) return;
 
     try {
-      const token = "your-auth-token";
-      await issuesAPI.deleteIssue(issueId, token);
+      await issuesAPI.deleteIssue(issueId);
       setIssues(issues.filter((issue) => issue.id !== issueId));
     } catch (error) {
       console.error("Failed to delete issue:", error);

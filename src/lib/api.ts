@@ -5,19 +5,20 @@ export interface Issue {
   id: string;
   title: string;
   description: string;
-  imageUrl: string;
+  imageUrl: string[];
   latitude: number;
   longitude: number;
   status: "PENDING" | "IN_PROGRESS" | "RESOLVED" | "ARCHIVED";
-  upvotes: number;
+  upvoteCount: number;
   isDuplicate: boolean;
-  parentIssueId?: string;
+  parentReportId?: string;
   createdAt: string;
   updatedAt: string;
   creator: {
     id: string;
     fullName: string;
   };
+  category?: string;
 }
 
 export interface IssueStats {
@@ -29,11 +30,8 @@ export interface IssueStats {
 }
 
 export const issuesAPI = {
-  async getAllIssues(token: string): Promise<Issue[]> {
+  async getAllIssues(): Promise<Issue[]> {
     const response = await fetch(`${API_BASE_URL}/reports`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
       credentials: "include",
     });
 
@@ -41,19 +39,18 @@ export const issuesAPI = {
       throw new Error("Failed to fetch issues");
     }
 
-    return response.json();
+    const result = await response.json();
+    return result.data || [];
   },
 
   async updateIssueStatus(
     issueId: string,
-    status: Issue["status"],
-    token: string
+    status: Issue["status"]
   ): Promise<Issue> {
     const response = await fetch(`${API_BASE_URL}/reports/${issueId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       credentials: "include",
       body: JSON.stringify({ status }),
@@ -63,15 +60,13 @@ export const issuesAPI = {
       throw new Error("Failed to update issue status");
     }
 
-    return response.json();
+    const result = await response.json();
+    return result.data;
   },
 
-  async deleteIssue(issueId: string, token: string): Promise<void> {
+  async deleteIssue(issueId: string): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/reports/${issueId}`, {
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
       credentials: "include",
     });
 
@@ -80,8 +75,8 @@ export const issuesAPI = {
     }
   },
 
-  async getIssueStats(token: string): Promise<IssueStats> {
-    const issues = await this.getAllIssues(token);
+  async getIssueStats(): Promise<IssueStats> {
+    const issues = await this.getAllIssues();
 
     return {
       total: issues.length,

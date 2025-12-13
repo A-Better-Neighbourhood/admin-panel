@@ -23,8 +23,7 @@ export default function ArchivedPage() {
 
   const loadArchivedIssues = async () => {
     try {
-      const token = "your-auth-token";
-      const allIssues = await issuesAPI.getAllIssues(token);
+      const allIssues = await issuesAPI.getAllIssues();
       const archived = allIssues.filter((issue) => issue.status === "ARCHIVED");
       setIssues(archived);
     } catch (error) {
@@ -53,8 +52,7 @@ export default function ArchivedPage() {
     status: Issue["status"]
   ) => {
     try {
-      const token = "your-auth-token";
-      await issuesAPI.updateIssueStatus(issueId, status, token);
+      await issuesAPI.updateIssueStatus(issueId, status);
       // Remove from archived list if status changed
       if (status !== "ARCHIVED") {
         setIssues(issues.filter((issue) => issue.id !== issueId));

@@ -25,8 +25,7 @@ export default function ResolvedPage() {
 
   const loadResolvedIssues = async () => {
     try {
-      const token = "your-auth-token";
-      const allIssues = await issuesAPI.getAllIssues(token);
+      const allIssues = await issuesAPI.getAllIssues();
       const resolved = allIssues.filter((issue) => issue.status === "RESOLVED");
       setIssues(resolved);
     } catch (error) {
@@ -53,7 +52,7 @@ export default function ResolvedPage() {
           new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       );
     } else if (sortBy === "upvotes") {
-      filtered.sort((a, b) => b.upvotes - a.upvotes);
+      filtered.sort((a, b) => b.upvoteCount - a.upvoteCount);
     }
 
     setFilteredIssues(filtered);
@@ -64,8 +63,7 @@ export default function ResolvedPage() {
     status: Issue["status"]
   ) => {
     try {
-      const token = "your-auth-token";
-      await issuesAPI.updateIssueStatus(issueId, status, token);
+      await issuesAPI.updateIssueStatus(issueId, status);
       // Remove from resolved list if status changed
       if (status !== "RESOLVED") {
         setIssues(issues.filter((issue) => issue.id !== issueId));

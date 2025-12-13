@@ -39,12 +39,18 @@ export function ReportCard({
     <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
       {/* Image */}
       <div className="relative h-48">
-        <Image
-          src={issue.imageUrl}
-          alt={issue.title}
-          fill
-          className="object-cover"
-        />
+        {issue.imageUrl && issue.imageUrl.length > 0 ? (
+          <Image
+            src={issue.imageUrl[0]}
+            alt={issue.title}
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+            <span className="text-gray-400">No Image</span>
+          </div>
+        )}
         <div className="absolute top-3 left-3">
           <span
             className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(
@@ -90,7 +96,7 @@ export function ReportCard({
           </div>
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <ThumbsUp className="h-4 w-4" />
-            <span>{issue.upvotes} upvotes</span>
+            <span>{issue.upvoteCount} upvotes</span>
           </div>
         </div>
 
