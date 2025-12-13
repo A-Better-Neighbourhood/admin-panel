@@ -9,7 +9,7 @@ export interface Issue {
   latitude: number;
   longitude: number;
   status: "PENDING" | "IN_PROGRESS" | "RESOLVED" | "ARCHIVED";
-  upvoteCount: number;
+  upvotes: number;
   isDuplicate: boolean;
   parentReportId?: string;
   createdAt: string;

@@ -14,7 +14,7 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
-  const [sortBy, setSortBy] = useState<string>("recent");
+  const [sortBy, setSortBy] = useState<string>("upvotes");
 
   useEffect(() => {
     loadIssues();

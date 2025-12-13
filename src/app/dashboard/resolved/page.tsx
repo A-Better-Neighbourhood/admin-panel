@@ -52,7 +52,7 @@ export default function ResolvedPage() {
           new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       );
     } else if (sortBy === "upvotes") {
-      filtered.sort((a, b) => b.upvoteCount - a.upvoteCount);
+      filtered.sort((a, b) => b.upvotes - a.upvotes);
     }
 
     setFilteredIssues(filtered);
