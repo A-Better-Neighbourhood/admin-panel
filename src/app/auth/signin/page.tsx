@@ -1,6 +1,9 @@
+/** @format */
+
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signInUser } from "@/lib/auth";
@@ -99,16 +102,10 @@ export default function SignInPage() {
 
           <div className="flex items-center justify-between">
             <label className="flex items-center">
-              <input
-                type="checkbox"
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
+              <Checkbox id="rememberMe" />
               <span className="ml-2 text-sm text-gray-600">Remember me</span>
             </label>
-            <Link
-              href="/auth/forgot-password"
-              className="text-sm text-blue-600 hover:text-blue-500"
-            >
+            <Link href="/auth/forgot-password" className="text-sm">
               Forgot password?
             </Link>
           </div>
@@ -127,10 +124,7 @@ export default function SignInPage() {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
             Don&apos;t have an account?{" "}
-            <Link
-              href="/auth/signup"
-              className="text-blue-600 hover:text-blue-500 font-medium"
-            >
+            <Link href="/auth/signup" className="font-medium text-primary">
               Sign up for free
             </Link>
           </p>
@@ -140,7 +134,7 @@ export default function SignInPage() {
           <div className="text-center">
             <p className="text-sm text-gray-500 mb-4">Or continue with</p>
             <div className="grid grid-cols-2 gap-3">
-              <button className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+              <Button variant={"outline"}>
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path
                     fill="#4285F4"
@@ -162,8 +156,9 @@ export default function SignInPage() {
                 <span className="ml-2 text-sm font-medium text-gray-700">
                   Google
                 </span>
-              </button>
-              <button className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+              </Button>
+              <Button variant={"outline"}>
+                {" "}
                 <svg
                   className="w-5 h-5"
                   fill="currentColor"
@@ -174,7 +169,7 @@ export default function SignInPage() {
                 <span className="ml-2 text-sm font-medium text-gray-700">
                   Facebook
                 </span>
-              </button>
+              </Button>
             </div>
           </div>
         </div>
