@@ -14,10 +14,10 @@ export interface SignInRequest {
 }
 
 export interface SignUpRequest {
-  fullName: string;
+  name: string;
   phoneNumber: string;
   password: string;
-  email?: string;
+  address: string;
 }
 
 export interface AuthApiResponse {

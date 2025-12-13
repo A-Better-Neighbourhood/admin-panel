@@ -20,15 +20,6 @@ export default function SignInPage() {
     setIsLoading(true);
     setError("");
 
-    // Mock authentication - bypass server
-    if (phoneNumber === "9876543210" && password === "admin123") {
-      setTimeout(() => {
-        setIsLoading(false);
-        router.push("/dashboard");
-      }, 500);
-      return;
-    }
-
     try {
       const response = await signInUser({ phoneNumber, password });
 
@@ -43,7 +34,7 @@ export default function SignInPage() {
       console.error("Signin error:", err);
       if (err.message?.includes("fetch")) {
         setError(
-          "Cannot connect to server. Using mock credentials: Phone: 9876543210, Password: admin123"
+          "Cannot connect to server. Please check if the server is running on port 3080."
         );
       } else {
         setError(err.message || "Sign in failed. Please try again.");

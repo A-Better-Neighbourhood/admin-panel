@@ -18,6 +18,9 @@ export default function PriorityReportsPage() {
       const token = "your-auth-token";
       const allIssues = await issuesAPI.getAllIssues(token);
 
+      // Calculate current time once
+      const now = Date.now();
+
       // Priority logic: High upvotes, recent, and pending/in-progress
       const priorityIssues = allIssues
         .filter(
@@ -28,11 +31,9 @@ export default function PriorityReportsPage() {
         .sort((a, b) => {
           // Sort by upvotes and recency
           const scoreA =
-            a.upvotes * 2 +
-            (Date.now() - new Date(a.createdAt).getTime()) / 1000000;
+            a.upvotes * 2 + (now - new Date(a.createdAt).getTime()) / 1000000;
           const scoreB =
-            b.upvotes * 2 +
-            (Date.now() - new Date(b.createdAt).getTime()) / 1000000;
+            b.upvotes * 2 + (now - new Date(b.createdAt).getTime()) / 1000000;
           return scoreB - scoreA;
         })
         .slice(0, 20); // Top 20 priority issues

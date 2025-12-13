@@ -9,9 +9,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function SignUpPage() {
-  const [fullName, setFullName] = useState("");
+  const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -29,20 +29,12 @@ export default function SignUpPage() {
       return;
     }
 
-    // Mock signup - accept any registration and redirect
-    setTimeout(() => {
-      setIsLoading(false);
-      router.push("/dashboard");
-    }, 500);
-    return;
-
-    /* Commented out server authentication
     try {
       const response = await signUpUser({
-        fullName,
+        name,
         phoneNumber,
         password,
-        email: email || undefined,
+        address,
       });
 
       if (response.data) {
@@ -55,14 +47,15 @@ export default function SignUpPage() {
     } catch (err: any) {
       console.error("Signup error:", err);
       if (err.message?.includes("fetch")) {
-        setError("Cannot connect to server. Please make sure the backend is running on http://localhost:3080");
+        setError(
+          "Cannot connect to server. Please check if the server is running on port 3080."
+        );
       } else {
         setError(err.message || "Sign up failed. Please try again.");
       }
     } finally {
       setIsLoading(false);
     }
-    */
   };
 
   return (
@@ -92,12 +85,12 @@ export default function SignUpPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="fullName">Full Name</Label>
+            <Label htmlFor="name">Full Name</Label>
             <Input
               type="text"
-              id="fullName"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               placeholder="John Doe"
               required
               className="mt-1"
@@ -119,16 +112,14 @@ export default function SignUpPage() {
           </div>
 
           <div>
-            <Label htmlFor="email">
-              Email{" "}
-              <span className="text-gray-400 font-normal">(Optional)</span>
-            </Label>
+            <Label htmlFor="address">Address</Label>
             <Input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@example.com"
+              type="text"
+              id="address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Your address"
+              required
               className="mt-1"
             />
           </div>

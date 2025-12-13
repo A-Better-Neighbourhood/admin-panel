@@ -30,10 +30,11 @@ export interface IssueStats {
 
 export const issuesAPI = {
   async getAllIssues(token: string): Promise<Issue[]> {
-    const response = await fetch(`${API_BASE_URL}/issues`, {
+    const response = await fetch(`${API_BASE_URL}/reports`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -48,12 +49,13 @@ export const issuesAPI = {
     status: Issue["status"],
     token: string
   ): Promise<Issue> {
-    const response = await fetch(`${API_BASE_URL}/issues/${issueId}/status`, {
+    const response = await fetch(`${API_BASE_URL}/reports/${issueId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
+      credentials: "include",
       body: JSON.stringify({ status }),
     });
 
@@ -65,11 +67,12 @@ export const issuesAPI = {
   },
 
   async deleteIssue(issueId: string, token: string): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/issues/${issueId}`, {
+    const response = await fetch(`${API_BASE_URL}/reports/${issueId}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      credentials: "include",
     });
 
     if (!response.ok) {
