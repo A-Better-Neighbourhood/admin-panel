@@ -1,3 +1,5 @@
+/** @format */
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -86,10 +88,8 @@ export default function UsersPage() {
   return (
     <div>
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <UsersIcon className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Users</h1>
-        </div>
+        <h1 className="text-3xl font-semibold">Users</h1>
+
         <p className="text-muted-foreground">
           Manage and view all registered users
         </p>

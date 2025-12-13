@@ -1,3 +1,5 @@
+/** @format */
+
 "use client";
 
 import {
@@ -53,10 +55,8 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <SettingsIcon className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Settings</h1>
-        </div>
+        <h1 className="text-3xl font-semibold">Settings</h1>
+
         <p className="text-muted-foreground">
           Manage your account settings and preferences
         </p>

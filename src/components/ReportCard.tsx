@@ -1,3 +1,5 @@
+/** @format */
+
 "use client";
 
 import Image from "next/image";
@@ -5,6 +7,7 @@ import { Issue } from "@/lib/api";
 import { MapPin, Calendar, ThumbsUp, User, Images } from "lucide-react";
 import { Button } from "./ui/button";
 import { Select } from "./ui/select";
+import { Card, CardContent, CardFooter } from "./ui/card";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -66,7 +69,7 @@ export function ReportCard({
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+      <Card className="overflow-hidden hover:shadow-lg transition-shadow">
         {/* Image */}
         <div
           className="relative h-48 cursor-pointer group"
@@ -111,7 +114,7 @@ export function ReportCard({
         </div>
 
         {/* Content */}
-        <div className="p-4">
+        <CardContent className="p-4">
           <h3
             className="font-bold text-lg text-gray-900 mb-2 line-clamp-2 cursor-pointer hover:text-blue-600 transition-colors"
             onClick={() => router.push(`/dashboard/reports/${issue.id}`)}
@@ -136,7 +139,9 @@ export function ReportCard({
               <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
                 {loadingAddress ? (
-                  <span className="text-gray-400 italic">Loading address...</span>
+                  <span className="text-gray-400 italic">
+                    Loading address...
+                  </span>
                 ) : (
                   <>
                     <div className="font-medium text-gray-700 mb-1">
@@ -159,96 +164,95 @@ export function ReportCard({
               <span className="font-semibold">{issue.upvotes || 0}</span>
             </div>
           </div>
+        </CardContent>
 
-          {/* Actions */}
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <Select
-                value={issue.status}
-                onValueChange={(status) =>
-                  onStatusChange?.(issue.id, status as Issue["status"])
-                }
-              >
-                <option value="PENDING">Pending</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="RESOLVED">Resolved</option>
-                <option value="ARCHIVED">Archived</option>
-              </Select>
-            </div>
-            <Button
-              className="bg-green-600 hover:bg-green-700 text-white"
-              size="sm"
-              onClick={handleResolve}
+        <CardFooter className="p-4 pt-0 flex gap-2">
+          <div className="flex-1">
+            <Select
+              value={issue.status}
+              onValueChange={(status) =>
+                onStatusChange?.(issue.id, status as Issue["status"])
+              }
             >
-              Resolve
-            </Button>
+              <option value="PENDING">Pending</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="RESOLVED">Resolved</option>
+              <option value="ARCHIVED">Archived</option>
+            </Select>
           </div>
-        </div>
+          <Button
+            className="bg-green-600 hover:bg-green-700 text-white"
+            size="sm"
+            onClick={handleResolve}
+          >
+            Resolve
+          </Button>
+        </CardFooter>
+      </Card>
 
-        {/* Images Dialog */}
-        <Dialog open={showImagesDialog} onOpenChange={setShowImagesDialog}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{issue.title}</DialogTitle>
-              <DialogDescription>
-                View all {issue.imageUrl.length} image(s) for this report
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              {issue.imageUrl &&
-                issue.imageUrl.map((url, idx) => (
-                  <div
-                    key={idx}
-                    className="relative h-64 rounded-lg overflow-hidden border border-gray-200"
+      {/* Images Dialog */}
+      <Dialog open={showImagesDialog} onOpenChange={setShowImagesDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{issue.title}</DialogTitle>
+            <DialogDescription>
+              View all {issue.imageUrl.length} image(s) for this report
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            {issue.imageUrl &&
+              issue.imageUrl.map((url, idx) => (
+                <div
+                  key={idx}
+                  className="relative h-64 rounded-lg overflow-hidden border border-gray-200"
+                >
+                  <Image
+                    src={url}
+                    alt={`${issue.title} - Image ${idx + 1}`}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ))}
+          </div>
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            <h4 className="font-semibold text-sm mb-2">Report Details</h4>
+            <p className="text-sm text-gray-600 mb-3">{issue.description}</p>
+            <div className="space-y-2 text-xs text-gray-500">
+              <div className="flex items-center gap-2">
+                <User className="h-3 w-3" />
+                <span>{issue.creator.fullName}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="h-3 w-3" />
+                <span>{formatDate(issue.createdAt)}</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <MapPin className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                <div>
+                  <div className="font-medium text-gray-700 mb-1">
+                    {formatAddress(address)}
+                  </div>
+                  <a
+                    href={`https://www.google.com/maps?q=${issue.latitude},${issue.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-blue-600 hover:underline"
                   >
-                    <Image
-                      src={url}
-                      alt={`${issue.title} - Image ${idx + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                ))}
-            </div>
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-              <h4 className="font-semibold text-sm mb-2">Report Details</h4>
-              <p className="text-sm text-gray-600 mb-3">{issue.description}</p>
-              <div className="space-y-2 text-xs text-gray-500">
-                <div className="flex items-center gap-2">
-                  <User className="h-3 w-3" />
-                  <span>{issue.creator.fullName}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-3 w-3" />
-                  <span>{formatDate(issue.createdAt)}</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <MapPin className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <div className="font-medium text-gray-700 mb-1">
-                      {formatAddress(address)}
-                    </div>
-                    <a
-                      href={`https://www.google.com/maps?q=${issue.latitude},${issue.longitude}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-blue-600 hover:underline"
-                    >
-                      {issue.latitude.toFixed(6)}, {issue.longitude.toFixed(6)}
-                    </a>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <ThumbsUp className="h-3 w-3 fill-blue-500 text-blue-500" />
-                  <span className="font-semibold">
-                    {issue.upvotes || 0} upvotes
-                  </span>
+                    {issue.latitude.toFixed(6)}, {issue.longitude.toFixed(6)}
+                  </a>
                 </div>
               </div>
+              <div className="flex items-center gap-2">
+                <ThumbsUp className="h-3 w-3 fill-blue-500 text-blue-500" />
+                <span className="font-semibold">
+                  {issue.upvotes || 0} upvotes
+                </span>
+              </div>
             </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

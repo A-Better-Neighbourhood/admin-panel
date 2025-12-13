@@ -1,3 +1,5 @@
+/** @format */
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -6,6 +8,14 @@ import { Issue, issuesAPI } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyMedia,
+} from "@/components/ui/empty";
 import { Search, Filter, Download } from "lucide-react";
 
 export default function ReportsPage() {
@@ -132,7 +142,7 @@ export default function ReportsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -140,67 +150,71 @@ export default function ReportsPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">All Reports</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-3xl font-semibold">All Reports</h1>
+        <p className="text-muted-foreground mt-2">
           Manage and monitor all community reports
         </p>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-            <Input
-              type="text"
-              placeholder="Search reports..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+      <Card className="mb-6">
+        <CardContent>
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search reports..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+
+            <div className="flex gap-4">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <option value="ALL">All Status</option>
+                <option value="PENDING">Pending</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="RESOLVED">Resolved</option>
+                <option value="ARCHIVED">Archived</option>
+              </Select>
+
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <option value="recent">Most Recent</option>
+                <option value="oldest">Oldest First</option>
+                <option value="upvotes">Most Upvoted</option>
+              </Select>
+
+              <Button variant="outline" onClick={exportToCSV}>
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+            </div>
           </div>
 
-          <div className="flex gap-4">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <option value="ALL">All Status</option>
-              <option value="PENDING">Pending</option>
-              <option value="IN_PROGRESS">In Progress</option>
-              <option value="RESOLVED">Resolved</option>
-              <option value="ARCHIVED">Archived</option>
-            </Select>
-
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <option value="recent">Most Recent</option>
-              <option value="oldest">Oldest First</option>
-              <option value="upvotes">Most Upvoted</option>
-            </Select>
-
-            <Button variant="outline" onClick={exportToCSV}>
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
+          <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
+            <span>
+              Showing <strong>{filteredIssues.length}</strong> of{" "}
+              <strong>{issues.length}</strong> reports
+            </span>
           </div>
-        </div>
-
-        <div className="mt-4 flex items-center gap-4 text-sm text-gray-600">
-          <span>
-            Showing <strong>{filteredIssues.length}</strong> of{" "}
-            <strong>{issues.length}</strong> reports
-          </span>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Reports Grid */}
       {filteredIssues.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-          <Filter className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No reports found
-          </h3>
-          <p className="text-gray-600">
-            Try adjusting your filters or search term
-          </p>
-        </div>
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Filter className="h-6 w-6" />
+            </EmptyMedia>
+            <EmptyTitle>No reports found</EmptyTitle>
+            <EmptyDescription>
+              Try adjusting your filters or search term
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredIssues.map((issue) => (

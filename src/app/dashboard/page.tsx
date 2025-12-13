@@ -1,3 +1,5 @@
+/** @format */
+
 "use client";
 
 import { FileText, AlertCircle, CheckCircle, TrendingUp } from "lucide-react";
@@ -5,6 +7,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { issuesAPI, Issue } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyMedia,
+} from "@/components/ui/empty";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<any>(null);
@@ -68,8 +77,8 @@ export default function DashboardPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-3xl font-semibold">Dashboard</h1>
+        <p className="text-muted-foreground mt-2">
           Welcome back! Here's an overview of community reports.
         </p>
       </div>
@@ -78,26 +87,25 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {loading
           ? Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="bg-card rounded-lg shadow-sm border p-6">
-                <Skeleton className="h-20 w-full" />
-              </div>
+              <Card key={i}>
+                <CardContent>
+                  <Skeleton className="h-20 w-full" />
+                </CardContent>
+              </Card>
             ))
           : statCards.map((stat) => {
               const Icon = stat.icon;
               const colorClasses = {
                 blue: "bg-primary/10 text-primary",
-                yellow:
-                  "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400",
-                green:
-                  "bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400",
+                yellow: "bg-secondary text-secondary-foreground",
+                green: "bg-primary/20 text-primary",
               };
               return (
-                <Link
+                <Card
                   key={stat.name}
-                  href={stat.href}
-                  className="bg-card rounded-lg shadow-sm border border-border p-6 hover:shadow-md transition-shadow"
+                  className="hover:shadow-md transition-shadow"
                 >
-                  <div className="flex items-center justify-between">
+                  <CardContent className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">
                         {stat.name}
@@ -111,69 +119,77 @@ export default function DashboardPage() {
                     >
                       <Icon className="h-6 w-6" />
                     </div>
-                  </div>
-                </Link>
+                  </CardContent>
+                </Card>
               );
             })}
       </div>
 
       {/* Recent Reports */}
-      <div className="bg-card rounded-lg shadow-sm border border-border p-6">
-        <h2 className="text-xl font-bold mb-4">Recent Reports</h2>
-        <div className="space-y-4">
-          {loading ? (
-            Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton key={i} className="h-16 w-full" />
-            ))
-          ) : recentReports.length > 0 ? (
-            recentReports.map((report) => {
-              const getStatusBadge = (status: string) => {
-                const styles = {
-                  PENDING:
-                    "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-400",
-                  IN_PROGRESS:
-                    "bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400",
-                  RESOLVED:
-                    "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400",
-                  ARCHIVED: "bg-muted text-muted-foreground",
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Reports</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {loading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))
+            ) : recentReports.length > 0 ? (
+              recentReports.map((report) => {
+                const getStatusBadge = (status: string) => {
+                  const styles = {
+                    PENDING: "bg-secondary text-secondary-foreground",
+                    IN_PROGRESS: "bg-primary/10 text-primary",
+                    RESOLVED: "bg-primary/20 text-primary",
+                    ARCHIVED: "bg-muted text-muted-foreground",
+                  };
+                  return (
+                    styles[status as keyof typeof styles] || styles.PENDING
+                  );
                 };
-                return styles[status as keyof typeof styles] || styles.PENDING;
-              };
 
-              return (
-                <Link
-                  key={report.id}
-                  href={`/dashboard/reports/${report.id}`}
-                  className="flex items-start gap-4 pb-4 border-b border-border last:border-0 hover:bg-muted/50 -mx-2 px-2 rounded transition-colors"
-                >
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <FileText className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">
-                      {report.title}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(report.createdAt).toLocaleString()}
-                    </p>
-                  </div>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${getStatusBadge(
-                      report.status
-                    )}`}
+                return (
+                  <Link
+                    key={report.id}
+                    href={`/dashboard/reports/${report.id}`}
+                    className="flex items-start gap-4 pb-4 border-b border-border last:border-0 hover:bg-muted/50 -mx-2 px-2 rounded transition-colors"
                   >
-                    {report.status.replace("_", " ")}
-                  </span>
-                </Link>
-              );
-            })
-          ) : (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No reports yet
-            </p>
-          )}
-        </div>
-      </div>
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <FileText className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {report.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {new Date(report.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${getStatusBadge(
+                        report.status
+                      )}`}
+                    >
+                      {report.status.replace("_", " ")}
+                    </span>
+                  </Link>
+                );
+              })
+            ) : (
+              <Empty className="py-8">
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <FileText className="h-6 w-6" />
+                  </EmptyMedia>
+                  <EmptyTitle>No reports yet</EmptyTitle>
+                </EmptyHeader>
+              </Empty>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

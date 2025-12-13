@@ -1,9 +1,19 @@
+/** @format */
+
 "use client";
 
 import { useState, useEffect } from "react";
 import { ReportCard } from "@/components/ReportCard";
 import { Issue, issuesAPI } from "@/lib/api";
 import { AlertCircle, TrendingUp } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyMedia,
+} from "@/components/ui/empty";
 
 export default function PriorityReportsPage() {
   const [issues, setIssues] = useState<Issue[]>([]);
@@ -30,11 +40,9 @@ export default function PriorityReportsPage() {
         .sort((a, b) => {
           // Sort by upvotes and recency
           const scoreA =
-            a.upvoteCount * 2 +
-            (now - new Date(a.createdAt).getTime()) / 1000000;
+            a.upvotes * 2 + (now - new Date(a.createdAt).getTime()) / 1000000;
           const scoreB =
-            b.upvoteCount * 2 +
-            (now - new Date(b.createdAt).getTime()) / 1000000;
+            b.upvotes * 2 + (now - new Date(b.createdAt).getTime()) / 1000000;
           return scoreB - scoreA;
         })
         .slice(0, 20); // Top 20 priority issues
@@ -77,69 +85,74 @@ export default function PriorityReportsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
     <div>
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <AlertCircle className="h-8 w-8 text-red-600" />
-          <h1 className="text-3xl font-bold text-gray-900">Priority Reports</h1>
-        </div>
-        <p className="text-gray-600">
+      <div className="mb-8">
+        <h1 className="text-3xl font-semibold">Priority Reports</h1>
+        <p className="text-muted-foreground">
           Reports requiring immediate attention based on community engagement
           and urgency
         </p>
       </div>
 
       {/* Priority Criteria */}
-      <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-lg border border-red-200 p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">
-          Priority Criteria
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex items-start gap-3">
-            <TrendingUp className="h-5 w-5 text-red-600 mt-0.5" />
-            <div>
-              <h3 className="font-medium text-gray-900">
-                High Community Engagement
-              </h3>
-              <p className="text-sm text-gray-600">
-                Reports with multiple upvotes
-              </p>
+      <Card className="mb-6 bg-primary/20 border border-primary/50">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg font-semibold">
+            Priority Criteria
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-center gap-3">
+              <TrendingUp className="size-6 mt-0.5 text-destructive" />
+              <div>
+                <h3 className="font-medium">High Community Engagement</h3>
+                <p className="text-sm text-muted-foreground">
+                  Reports with multiple upvotes
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <AlertCircle className="size-6 mt-0.5 text-destructive" />
+              <div>
+                <h3 className="font-medium">Recent Submissions</h3>
+                <p className="text-sm text-muted-foreground">
+                  Newly reported issues
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <AlertCircle className="size-6 mt-0.5 text-destructive" />
+              <div>
+                <h3 className="font-medium">Pending Action</h3>
+                <p className="text-sm text-muted-foreground">
+                  Awaiting resolution
+                </p>
+              </div>
             </div>
           </div>
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
-            <div>
-              <h3 className="font-medium text-gray-900">Recent Submissions</h3>
-              <p className="text-sm text-gray-600">Newly reported issues</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
-            <div>
-              <h3 className="font-medium text-gray-900">Pending Action</h3>
-              <p className="text-sm text-gray-600">Awaiting resolution</p>
-            </div>
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Reports Grid */}
       {issues.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-          <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No priority reports
-          </h3>
-          <p className="text-gray-600">
-            All critical issues have been addressed!
-          </p>
-        </div>
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <AlertCircle className="h-6 w-6" />
+            </EmptyMedia>
+            <EmptyTitle>No priority reports</EmptyTitle>
+            <EmptyDescription>
+              All critical issues have been addressed!
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {issues.map((issue) => (
