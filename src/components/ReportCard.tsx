@@ -4,10 +4,17 @@
 
 import Image from "next/image";
 import { Issue } from "@/lib/api";
-import { MapPin, Calendar, ThumbsUp, User, Images } from "lucide-react";
+import {
+  MapPin,
+  Calendar,
+  ThumbsUp,
+  User,
+  Images,
+  MoreVertical,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import { Select } from "./ui/select";
-import { Card, CardContent, CardFooter } from "./ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -18,19 +25,16 @@ import {
   DialogDescription,
 } from "./ui/dialog";
 import { reverseGeocode, formatAddress, Address } from "@/lib/geocoding";
+import { Badge } from "@/components/ui/badge"; // Assuming we have Badge or need to simulate it
 
-interface ReportCardProps {
-  issue: Issue;
-  onStatusChange?: (issueId: string, status: Issue["status"]) => void;
-  onDelete?: (issueId: string) => void;
-}
-
-const getStatusBadge = (status: Issue["status"]) => {
+// Helper for status badge
+const getStatusStyles = (status: Issue["status"]) => {
   const styles = {
-    PENDING: "bg-yellow-100 text-yellow-800",
-    IN_PROGRESS: "bg-blue-100 text-blue-800",
-    RESOLVED: "bg-green-100 text-green-800",
-    ARCHIVED: "bg-gray-100 text-gray-800",
+    PENDING: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+    IN_PROGRESS: "bg-primary/20 text-primary hover:bg-primary/30",
+    RESOLVED:
+      "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400",
+    ARCHIVED: "bg-muted text-muted-foreground hover:bg-muted/80",
   };
   return styles[status] || styles.PENDING;
 };
@@ -42,6 +46,12 @@ const formatDate = (dateString: string) => {
     year: "numeric",
   });
 };
+
+interface ReportCardProps {
+  issue: Issue;
+  onStatusChange?: (issueId: string, status: Issue["status"]) => void;
+  onDelete?: (issueId: string) => void;
+}
 
 export function ReportCard({
   issue,
@@ -63,130 +73,144 @@ export function ReportCard({
     fetchAddress();
   }, [issue.latitude, issue.longitude]);
 
-  const handleResolve = () => {
-    router.push(`/dashboard/reports/${issue.id}/resolve`);
-  };
-
   return (
     <>
-      <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-        {/* Image */}
-        <div
-          className="relative h-48 cursor-pointer group"
-          onClick={() => setShowImagesDialog(true)}
-        >
-          {issue.imageUrl && issue.imageUrl.length > 0 ? (
-            <>
-              <Image
-                src={issue.imageUrl[0]}
-                alt={issue.title}
-                fill
-                className="object-cover group-hover:opacity-90 transition-opacity"
-              />
-              {issue.imageUrl.length > 1 && (
-                <div className="absolute bottom-3 right-3 bg-black/70 text-white px-2 py-1 rounded-md flex items-center gap-1 text-xs">
-                  <Images className="h-3 w-3" />
-                  {issue.imageUrl.length} images
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-400">No Image</span>
-            </div>
-          )}
-          <div className="absolute top-3 left-3">
-            <span
-              className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(
-                issue.status
-              )}`}
-            >
-              {issue.status.replace("_", " ")}
-            </span>
-          </div>
-          {issue.isDuplicate && (
-            <div className="absolute top-3 right-3">
-              <span className="px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                Duplicate
+      <Card className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow border-border/50 group">
+        {/* Card Header: Title and Status */}
+        <CardHeader className="p-4 pb-2 flex-row items-start justify-between space-y-0 gap-2">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span
+                className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${getStatusStyles(
+                  issue.status
+                )}`}
+              >
+                {issue.status.replace("_", " ")}
               </span>
+              {issue.isDuplicate && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-destructive/10 text-destructive">
+                  Duplicate
+                </span>
+              )}
             </div>
-          )}
-        </div>
-
-        {/* Content */}
-        <CardContent className="p-4">
-          <h3
-            className="font-bold text-lg text-gray-900 mb-2 line-clamp-2 cursor-pointer hover:text-blue-600 transition-colors"
-            onClick={() => router.push(`/dashboard/reports/${issue.id}`)}
-          >
-            {issue.title}
-          </h3>
-          <p className="text-gray-600 text-sm line-clamp-2 mb-4">
-            {issue.description}
-          </p>
-
-          {/* Meta Info */}
-          <div className="space-y-2 mb-4">
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <User className="h-4 w-4" />
-              <span>{issue.creator.fullName}</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <Calendar className="h-4 w-4" />
+            <h3
+              className="font-bold text-base leading-tight cursor-pointer hover:text-primary transition-colors truncate"
+              onClick={() => router.push(`/dashboard/reports/${issue.id}`)}
+              title={issue.title}
+            >
+              {issue.title}
+            </h3>
+          </div>
+          <div className="flex flex-col items-end text-xs text-muted-foreground whitespace-nowrap">
+            {/* Small Date */}
+            <div className="flex items-center gap-1">
+              <Calendar className="h-3 w-3" />
               <span>{formatDate(issue.createdAt)}</span>
             </div>
-            <div className="flex items-start gap-2 text-xs text-gray-500">
-              <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
-              <div className="flex-1">
-                {loadingAddress ? (
-                  <span className="text-gray-400 italic">
-                    Loading address...
-                  </span>
-                ) : (
-                  <>
-                    <div className="font-medium text-gray-700 mb-1">
-                      {formatAddress(address)}
-                    </div>
-                    <a
-                      href={`https://www.google.com/maps?q=${issue.latitude},${issue.longitude}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-blue-600 hover:underline"
-                    >
-                      {issue.latitude.toFixed(6)}, {issue.longitude.toFixed(6)}
-                    </a>
-                  </>
+          </div>
+        </CardHeader>
+
+        {/* Card Content */}
+        <CardContent className="p-4 pt-2 flex-1 flex flex-col gap-4">
+          {/* Image & Description Split (or Stack depending on space) */}
+          <div
+            className="relative w-full aspect-video rounded-md overflow-hidden bg-muted cursor-pointer"
+            onClick={() => setShowImagesDialog(true)}
+          >
+            {issue.imageUrl && issue.imageUrl.length > 0 ? (
+              <>
+                <Image
+                  src={issue.imageUrl[0]}
+                  alt={issue.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                {issue.imageUrl.length > 1 && (
+                  <div className="absolute bottom-2 right-2 bg-black/60 text-white px-1.5 py-0.5 rounded text-[10px] flex items-center gap-1 backdrop-blur-sm">
+                    <Images className="h-3 w-3" />+{issue.imageUrl.length - 1}
+                  </div>
                 )}
+              </>
+            ) : (
+              <div className="flex items-center justify-center h-full text-muted-foreground">
+                <Images className="h-8 w-8 opacity-20" />
               </div>
+            )}
+          </div>
+
+          <div className="flex-1">
+            <p className="text-sm text-muted-foreground line-clamp-2">
+              {issue.description}
+            </p>
+          </div>
+
+          {/* Metadata Grid */}
+          <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground bg-muted/30 p-2 rounded-md">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <User className="h-3.5 w-3.5 flex-shrink-0" />
+              <span className="truncate">{issue.creator.fullName}</span>
             </div>
-            <div className="flex items-center gap-2 text-xs text-gray-700">
-              <ThumbsUp className="h-4 w-4 fill-blue-500 text-blue-500" />
-              <span className="font-semibold">{issue.upvotes || 0}</span>
+            <div className="flex items-center gap-1.5">
+              <ThumbsUp className="h-3.5 w-3.5 flex-shrink-0 text-primary" />
+              <span className="font-medium text-foreground">
+                {issue.upvotes} Upvotes
+              </span>
+            </div>
+            <div className="col-span-2 flex items-center gap-1.5 min-w-0">
+              <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+              <span className="truncate" title={formatAddress(address)}>
+                {loadingAddress ? "Locating..." : formatAddress(address)}
+              </span>
             </div>
           </div>
         </CardContent>
 
-        <CardFooter className="p-4 pt-0 flex gap-2">
-          <div className="flex-1">
-            <Select
-              value={issue.status}
-              onValueChange={(status) =>
-                onStatusChange?.(issue.id, status as Issue["status"])
-              }
-            >
-              <option value="PENDING">Pending</option>
-              <option value="IN_PROGRESS">In Progress</option>
-              <option value="RESOLVED">Resolved</option>
-              <option value="ARCHIVED">Archived</option>
-            </Select>
+        {/* Card Footer: Actions */}
+        <CardFooter className="p-4 pt-0 border-t border-border/50 bg-muted/5 mt-auto">
+          <div className="w-full pt-3 flex items-center justify-between gap-3">
+            <div className="flex-1">
+              <Select
+                value={issue.status}
+                onValueChange={(val) =>
+                  onStatusChange?.(issue.id, val as Issue["status"])
+                }
+              >
+                <option value="PENDING">Pending</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="RESOLVED">Resolved</option>
+                <option value="ARCHIVED">Archived</option>
+              </Select>
+            </div>
+            {onDelete && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                onClick={() => onDelete(issue.id)}
+                title="Delete Report"
+              >
+                <span className="sr-only">Delete</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="lucide lucide-trash-2"
+                >
+                  <path d="M3 6h18" />
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                  <line x1="10" x2="10" y1="11" y2="17" />
+                  <line x1="14" x2="14" y1="11" y2="17" />
+                </svg>
+              </Button>
+            )}
           </div>
-          <Button
-            className="bg-green-600 hover:bg-green-700 text-white"
-            size="sm"
-            onClick={handleResolve}
-          >
-            Resolve
-          </Button>
         </CardFooter>
       </Card>
 
@@ -194,60 +218,97 @@ export function ReportCard({
       <Dialog open={showImagesDialog} onOpenChange={setShowImagesDialog}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{issue.title}</DialogTitle>
+            <div className="flex items-center gap-4">
+              <DialogTitle className="text-xl">{issue.title}</DialogTitle>
+              <span
+                className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusStyles(
+                  issue.status
+                )}`}
+              >
+                {issue.status.replace("_", " ")}
+              </span>
+            </div>
             <DialogDescription>
-              View all {issue.imageUrl.length} image(s) for this report
+              Reported by {issue.creator.fullName} on{" "}
+              {formatDate(issue.createdAt)}
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            {issue.imageUrl &&
-              issue.imageUrl.map((url, idx) => (
-                <div
-                  key={idx}
-                  className="relative h-64 rounded-lg overflow-hidden border border-gray-200"
-                >
-                  <Image
-                    src={url}
-                    alt={`${issue.title} - Image ${idx + 1}`}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ))}
-          </div>
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-            <h4 className="font-semibold text-sm mb-2">Report Details</h4>
-            <p className="text-sm text-gray-600 mb-3">{issue.description}</p>
-            <div className="space-y-2 text-xs text-gray-500">
-              <div className="flex items-center gap-2">
-                <User className="h-3 w-3" />
-                <span>{issue.creator.fullName}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="h-3 w-3" />
-                <span>{formatDate(issue.createdAt)}</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <MapPin className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                <div>
-                  <div className="font-medium text-gray-700 mb-1">
-                    {formatAddress(address)}
-                  </div>
-                  <a
-                    href={`https://www.google.com/maps?q=${issue.latitude},${issue.longitude}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-blue-600 hover:underline"
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+            {/* Images Grid */}
+            <div className="space-y-4">
+              {issue.imageUrl && issue.imageUrl.length > 0 ? (
+                issue.imageUrl.map((url, idx) => (
+                  <div
+                    key={idx}
+                    className="relative aspect-video rounded-lg overflow-hidden border border-border bg-muted"
                   >
-                    {issue.latitude.toFixed(6)}, {issue.longitude.toFixed(6)}
-                  </a>
+                    <Image
+                      src={url}
+                      alt={`${issue.title} - Image ${idx + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ))
+              ) : (
+                <div className="aspect-video flex items-center justify-center bg-muted rounded-lg border border-border">
+                  <p className="text-muted-foreground">No images attached</p>
                 </div>
+              )}
+            </div>
+
+            {/* Details Panel */}
+            <div className="space-y-6">
+              <div className="bg-muted/30 p-6 rounded-xl border border-border/50">
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-primary" />
+                  Description
+                </h4>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {issue.description}
+                </p>
               </div>
-              <div className="flex items-center gap-2">
-                <ThumbsUp className="h-3 w-3 fill-blue-500 text-blue-500" />
-                <span className="font-semibold">
-                  {issue.upvotes || 0} upvotes
-                </span>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-muted/30 p-4 rounded-xl border border-border/50">
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                    Location
+                  </h4>
+                  <div className="flex items-start gap-2">
+                    <MapPin className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    <div className="text-sm">
+                      <p className="font-medium">
+                        {loadingAddress ? "Loading..." : formatAddress(address)}
+                      </p>
+                      <a
+                        href={`https://www.google.com/maps?q=${issue.latitude},${issue.longitude}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-primary hover:underline mt-1 inline-block"
+                      >
+                        View on Maps
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-muted/30 p-4 rounded-xl border border-border/50">
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                    Community
+                  </h4>
+                  <div className="flex items-start gap-2">
+                    <ThumbsUp className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium">
+                        {issue.upvotes} Upvotes
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        High engagement
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -256,3 +317,6 @@ export function ReportCard({
     </>
   );
 }
+
+// Fallback Icon component import fix
+import { FileText } from "lucide-react";

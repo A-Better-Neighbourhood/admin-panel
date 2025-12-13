@@ -21,7 +21,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full bg-background">
+      <div className="flex h-screen w-full bg-background overflow-hidden">
         <AdminSidebar />
         <SidebarInset className="flex flex-col">
           <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border px-4">
