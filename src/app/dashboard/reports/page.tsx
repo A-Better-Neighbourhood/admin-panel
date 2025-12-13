@@ -3,10 +3,16 @@
 import { useState, useEffect } from "react";
 import { ReportCard } from "@/components/ReportCard";
 import { Issue, issuesAPI } from "@/lib/api";
+import { groupIssuesByLocationAndTitle, LocationCluster } from "@/lib/locationGrouping";
+import { reverseGeocode } from "@/lib/geocoding";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Search, Filter, Download } from "lucide-react";
+import { Search, Filter, Download, ChevronDown, ChevronRight, MapPin, ThumbsUp } from "lucide-react";
+
+interface ClusterWithLocationName extends LocationCluster {
+  locationName: string;
+}
 
 export default function ReportsPage() {
   const [issues, setIssues] = useState<Issue[]>([]);
@@ -14,7 +20,7 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
-  const [sortBy, setSortBy] = useState<string>("recent");
+  const [sortBy, setSortBy] = useState<string>("upvotes");
 
   useEffect(() => {
     loadIssues();
@@ -59,7 +65,7 @@ export default function ReportsPage() {
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
     } else if (sortBy === "upvotes") {
-      filtered.sort((a, b) => b.upvotes - a.upvotes);
+      filtered.sort((a, b) => b.upvoteCount - a.upvoteCount);
     } else if (sortBy === "oldest") {
       filtered.sort(
         (a, b) =>
@@ -108,15 +114,17 @@ export default function ReportsPage() {
         "Created At",
         "Creator",
       ],
-      ...filteredIssues.map((issue) => [
-        issue.id,
-        issue.title,
-        issue.description,
-        issue.status,
-        issue.upvotes,
-        new Date(issue.createdAt).toLocaleDateString(),
-        issue.creator.fullName,
-      ]),
+      ...clusters.flatMap((cluster) =>
+        cluster.issues.map((issue) => [
+          issue.id,
+          issue.title,
+          issue.description,
+          issue.status,
+          issue.upvoteCount,
+          new Date(issue.createdAt).toLocaleDateString(),
+          issue.creator.fullName,
+        ])
+      ),
     ]
       .map((row) => row.join(","))
       .join("\n");
@@ -173,6 +181,13 @@ export default function ReportsPage() {
               <option value="recent">Most Recent</option>
               <option value="oldest">Oldest First</option>
               <option value="upvotes">Most Upvoted</option>
+            </Select>
+
+            <Select value={String(radiusKm)} onValueChange={(v) => setRadiusKm(Number(v))}>
+              <option value="1">1 km</option>
+              <option value="2">2 km</option>
+              <option value="5">5 km</option>
+              <option value="10">10 km</option>
             </Select>
 
             <Button variant="outline" onClick={exportToCSV}>
