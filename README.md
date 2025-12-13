@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Admin Panel - Issue Management System
 
-## Getting Started
+A comprehensive admin dashboard for managing community reports with the same UI/UX as the user panel.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 📊 Dashboard Overview
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Real-time statistics (Total, Pending, In Progress, Resolved reports)
+- Recent activity feed
+- Quick navigation to different sections
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 📝 All Reports Section
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- View all community reports in a grid layout
+- Advanced filtering by status (Pending, In Progress, Resolved, Archived)
+- Search functionality across titles and descriptions
+- Sort by: Most Recent, Oldest First, Most Upvoted
+- Export reports to CSV
+- Update report status directly from cards
+- Delete reports with confirmation
 
-## Learn More
+### ⚠️ Priority Reports
 
-To learn more about Next.js, take a look at the following resources:
+- Automatically identifies high-priority reports based on:
+  - High community engagement (upvotes)
+  - Recent submissions
+  - Pending action status
+- Smart prioritization algorithm
+- Quick action buttons for status updates
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### ✅ Resolved Reports
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- View all successfully resolved issues
+- Search and filter capabilities
+- Track resolution dates
+- Option to reopen if needed
 
-## Deploy on Vercel
+### 📦 Archived Reports
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- View archived and duplicate reports
+- Search functionality
+- Restore or permanently manage archived items
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Setup Instructions
+
+1. **Install Dependencies**
+
+   ```bash
+   cd admin-panel
+   npm install
+   ```
+
+2. **Configure Environment**
+   Create `.env.local` file:
+
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:3080/api
+   ```
+
+3. **Run Development Server**
+
+   ```bash
+   npm run dev
+   ```
+
+4. **Access Admin Panel**
+   Open [http://localhost:3000/dashboard](http://localhost:3000/dashboard)
+
+## Technologies Used
+
+- **Next.js 15** - React framework
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
+- **Lucide React** - Icons
