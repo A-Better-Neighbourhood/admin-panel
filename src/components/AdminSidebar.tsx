@@ -1,3 +1,5 @@
+/** @format */
+
 "use client";
 
 import Link from "next/link";
@@ -28,12 +30,12 @@ import { Button } from "@/components/ui/button";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "All Reports", href: "/dashboard/reports", icon: FileText },
-  { name: "Priority Reports", href: "/dashboard/priority", icon: AlertCircle },
-  { name: "Resolved", href: "/dashboard/resolved", icon: CheckCircle },
-  { name: "Archived", href: "/dashboard/archived", icon: Archive },
-  { name: "Users", href: "/dashboard/users", icon: Users },
-  { name: "Settings", href: "/dashboard/settings", icon: Settings },
+  { name: "All Reports", href: "/reports", icon: FileText },
+  { name: "Priority Reports", href: "/priority", icon: AlertCircle },
+  { name: "Resolved", href: "/resolved", icon: CheckCircle },
+  { name: "Archived", href: "/archived", icon: Archive },
+  { name: "Users", href: "/users", icon: Users },
+  { name: "Settings", href: "/settings", icon: Settings },
 ];
 
 export function AdminSidebar() {
@@ -41,7 +43,7 @@ export function AdminSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="border-b border-sidebar-border px-6 py-4">
+      <SidebarHeader className="border-b border-sidebar-border px-6 h-16 justify-center items-start">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
             <span className="text-lg font-bold text-primary-foreground">A</span>

@@ -1,14 +1,15 @@
 /** @format */
 
 import type { Metadata } from "next";
-import { Inter, Noto_Sans } from "next/font/google";
+import { Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/components/theme-provider";
+import { MainLayout } from "@/components/main-layout";
 
-const notoSans = Noto_Sans({variable:'--font-sans'});
+const notoSans = Noto_Sans({ variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: "Admin Panel - Issue Management",
@@ -34,7 +35,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            {children}
+            <MainLayout>{children}</MainLayout>
             <Toaster position="top-right" richColors />
           </AuthProvider>
         </ThemeProvider>

@@ -1,3 +1,8 @@
+/** @format */
+
+"use client";
+
+import { usePathname } from "next/navigation";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { AdminHeader } from "@/components/AdminHeader";
 import {
@@ -6,11 +11,14 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function MainLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isAuthPage = pathname?.startsWith("/auth");
+
+  if (isAuthPage) {
+    return <>{children}</>;
+  }
+
   return (
     <SidebarProvider>
       <div className="flex h-screen w-full bg-background">
