@@ -4,20 +4,20 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Issue, issuesAPI } from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Camera, CheckCircle, ArrowLeft, Clock } from "lucide-react";
 import Image from "next/image";
 import { reverseGeocode, formatAddress, Address } from "@/lib/geocoding";
+import { Report, ReportStatus } from "@/types/api";
+import { getReportById, updateReportStatus } from "@/actions/report";
 
 export default function ResolveReportPage() {
   const router = useRouter();
   const params = useParams();
   const reportId = params?.id as string;
 
-  const [report, setReport] = useState<Issue | null>(null);
+  const [report, setReport] = useState<Report | null>(null);
   const [address, setAddress] = useState<Address>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -35,17 +35,18 @@ export default function ResolveReportPage() {
 
   const loadReport = async () => {
     try {
-      const data = await issuesAPI.getAllIssues();
-      const foundReport = data.find((r) => r.id === reportId);
+      const foundReport = await getReportById(reportId);
       if (foundReport) {
         setReport(foundReport);
 
         // Fetch address
-        const addr = await reverseGeocode(
-          foundReport.latitude,
-          foundReport.longitude
-        );
-        setAddress(addr);
+        if (foundReport.latitude && foundReport.longitude) {
+          const addr = await reverseGeocode(
+            foundReport.latitude,
+            foundReport.longitude
+          );
+          setAddress(addr);
+        }
       }
     } catch (error) {
       console.error("Failed to load report:", error);
@@ -102,10 +103,10 @@ export default function ResolveReportPage() {
     setSubmitting(true);
     try {
       // Update report status to RESOLVED
-      await issuesAPI.updateIssueStatus(reportId, "RESOLVED");
-
-      // Here you would also send the resolution image and notes to the server
-      // This would create an activity entry in the timeline
+      // In a real scenario, you'd send the image and note too.
+      // updateReportStatus might need to support sending resolution data, or we call a separate API.
+      // For now, adhering to the existing action structure.
+      await updateReportStatus(reportId, ReportStatus.RESOLVED);
 
       setSuccess(true);
       setTimeout(() => {
@@ -229,7 +230,7 @@ export default function ResolveReportPage() {
                 </div>
                 <div>
                   <span className="font-medium">Reporter:</span>{" "}
-                  {report.creator.fullName}
+                  {report.creator?.fullName}
                 </div>
                 <div>
                   <span className="font-medium">Location:</span>

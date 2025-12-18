@@ -4,10 +4,17 @@
 
 import { useState, useEffect } from "react";
 import { ReportCard } from "@/components/ReportCard";
-import { Issue, issuesAPI } from "@/lib/api";
+import { getReports, updateReportStatus } from "@/actions/report";
+import { Report, ReportStatus } from "@/types/api";
 import { CheckCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { Search } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -19,8 +26,8 @@ import {
 } from "@/components/ui/empty";
 
 export default function ResolvedPage() {
-  const [issues, setIssues] = useState<Issue[]>([]);
-  const [filteredIssues, setFilteredIssues] = useState<Issue[]>([]);
+  const [issues, setIssues] = useState<Report[]>([]);
+  const [filteredIssues, setFilteredIssues] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<string>("recent");
@@ -35,8 +42,10 @@ export default function ResolvedPage() {
 
   const loadResolvedIssues = async () => {
     try {
-      const allIssues = await issuesAPI.getAllIssues();
-      const resolved = allIssues.filter((issue) => issue.status === "RESOLVED");
+      const allIssues = await getReports();
+      const resolved = allIssues.filter(
+        (issue) => issue.status === ReportStatus.RESOLVED
+      );
       setIssues(resolved);
     } catch (error) {
       console.error("Failed to load resolved issues:", error);
@@ -59,24 +68,25 @@ export default function ResolvedPage() {
     if (sortBy === "recent") {
       filtered.sort(
         (a, b) =>
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
     } else if (sortBy === "upvotes") {
-      filtered.sort((a, b) => b.upvotes - a.upvotes);
+      filtered.sort((a, b) => (b.upvotes || 0) - (a.upvotes || 0));
     }
 
     setFilteredIssues(filtered);
   };
 
-  const handleStatusChange = async (
-    issueId: string,
-    status: Issue["status"]
-  ) => {
+  const handleStatusChange = async (issueId: string, status: ReportStatus) => {
     try {
-      await issuesAPI.updateIssueStatus(issueId, status);
-      // Remove from resolved list if status changed
-      if (status !== "RESOLVED") {
+      await updateReportStatus(issueId, status);
+      // Remove from resolved list if status changed (and no longer resolved)
+      // Actually updateReportStatus returns the updated report.
+      // If we move it out of resolved, we should remove it.
+      if (status !== ReportStatus.RESOLVED) {
         setIssues(issues.filter((issue) => issue.id !== issueId));
+      } else {
+        // Update state if it stayed resolved but changed somehow? Unlikely for status change to same status.
       }
     } catch (error) {
       console.error("Failed to update status:", error);
@@ -117,8 +127,13 @@ export default function ResolvedPage() {
             </div>
 
             <Select value={sortBy} onValueChange={setSortBy}>
-              <option value="recent">Recently Resolved</option>
-              <option value="upvotes">Most Upvoted</option>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="recent">Recently Resolved</SelectItem>
+                <SelectItem value="upvotes">Most Upvoted</SelectItem>
+              </SelectContent>
             </Select>
           </div>
 

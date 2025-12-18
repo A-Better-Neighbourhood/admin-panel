@@ -11,9 +11,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { issuesAPI, Issue } from "@/lib/api";
+import { getReports, getReportStats } from "@/actions/report";
+import { Report, ReportStatus } from "@/types/api";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Empty,
   EmptyHeader,
@@ -28,12 +29,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<any>(null);
-  const [recentReports, setRecentReports] = useState<Issue[]>([]);
+  const [recentReports, setRecentReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -43,13 +43,17 @@ export default function DashboardPage() {
   const loadDashboardData = async () => {
     try {
       const [statsData, reports] = await Promise.all([
-        issuesAPI.getIssueStats(),
-        issuesAPI.getAllIssues(),
+        getReportStats(),
+        getReports(),
       ]);
 
       setStats(statsData);
       // Get the 5 most recent reports
-      setRecentReports(reports.slice(0, 5));
+      const sortedReports = reports.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      setRecentReports(sortedReports.slice(0, 5));
     } catch (error) {
       console.error("Failed to load dashboard data:", error);
     } finally {
@@ -89,6 +93,20 @@ export default function DashboardPage() {
         },
       ]
     : [];
+
+  const getStatusStyles = (status: ReportStatus) => {
+    const styles = {
+      [ReportStatus.PENDING]:
+        "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+      [ReportStatus.IN_PROGRESS]:
+        "bg-primary/10 text-primary hover:bg-primary/20",
+      [ReportStatus.RESOLVED]:
+        "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400",
+      [ReportStatus.ARCHIVED]:
+        "bg-muted text-muted-foreground hover:bg-muted/80",
+    };
+    return styles[status] || styles[ReportStatus.PENDING];
+  };
 
   return (
     <div>
@@ -162,65 +180,47 @@ export default function DashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentReports.map((report) => {
-                  const getStatusStyles = (status: string) => {
-                    const styles = {
-                      PENDING:
-                        "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-                      IN_PROGRESS:
-                        "bg-primary/10 text-primary hover:bg-primary/20",
-                      RESOLVED:
-                        "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400",
-                      ARCHIVED:
-                        "bg-muted text-muted-foreground hover:bg-muted/80",
-                    };
-                    return (
-                      styles[status as keyof typeof styles] || styles.PENDING
-                    );
-                  };
-
-                  return (
-                    <TableRow key={report.id}>
-                      <TableCell className="font-medium">
-                        <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            <FileText className="h-4 w-4 text-primary" />
-                          </div>
-                          <Link
-                            href={`/reports/${report.id}`}
-                            className="hover:underline truncate max-w-[200px] md:max-w-xs block"
-                          >
-                            {report.title}
-                          </Link>
+                {recentReports.map((report) => (
+                  <TableRow key={report.id}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <FileText className="h-4 w-4 text-primary" />
                         </div>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground whitespace-nowrap">
-                        {new Date(report.createdAt).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-semibold uppercase tracking-wide whitespace-nowrap ${getStatusStyles(
-                            report.status
-                          )}`}
+                        <Link
+                          href={`/reports/${report.id}`}
+                          className="hover:underline truncate max-w-[200px] md:max-w-xs block"
                         >
-                          {report.status.replace("_", " ")}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          asChild
-                          className="h-8 w-8"
-                        >
-                          <Link href={`/reports/${report.id}`}>
-                            <ArrowRight className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                          {report.title}
+                        </Link>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground whitespace-nowrap">
+                      {new Date(report.createdAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-semibold uppercase tracking-wide whitespace-nowrap ${getStatusStyles(
+                          report.status
+                        )}`}
+                      >
+                        {report.status.replace("_", " ")}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        asChild
+                        className="h-8 w-8"
+                      >
+                        <Link href={`/reports/${report.id}`}>
+                          <ArrowRight className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>

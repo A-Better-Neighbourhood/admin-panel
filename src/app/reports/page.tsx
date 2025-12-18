@@ -4,7 +4,8 @@
 
 import { useState, useEffect } from "react";
 import { ReportCard } from "@/components/ReportCard";
-import { Issue, issuesAPI } from "@/lib/api";
+import { getReports, deleteReport, updateReportStatus } from "@/actions/report";
+import { Report, ReportStatus } from "@/types/api";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -25,8 +26,8 @@ import {
 import { Search, Filter, Download } from "lucide-react";
 
 export default function ReportsPage() {
-  const [issues, setIssues] = useState<Issue[]>([]);
-  const [filteredIssues, setFilteredIssues] = useState<Issue[]>([]);
+  const [issues, setIssues] = useState<Report[]>([]);
+  const [filteredIssues, setFilteredIssues] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -42,7 +43,7 @@ export default function ReportsPage() {
 
   const loadIssues = async () => {
     try {
-      const data = await issuesAPI.getAllIssues();
+      const data = await getReports();
       setIssues(data);
     } catch (error) {
       console.error("Failed to load issues:", error);
@@ -75,7 +76,7 @@ export default function ReportsPage() {
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
     } else if (sortBy === "upvotes") {
-      filtered.sort((a, b) => b.upvotes - a.upvotes);
+      filtered.sort((a, b) => (b.upvotes || 0) - (a.upvotes || 0));
     } else if (sortBy === "oldest") {
       filtered.sort(
         (a, b) =>
@@ -86,12 +87,9 @@ export default function ReportsPage() {
     setFilteredIssues(filtered);
   };
 
-  const handleStatusChange = async (
-    issueId: string,
-    status: Issue["status"]
-  ) => {
+  const handleStatusChange = async (issueId: string, status: ReportStatus) => {
     try {
-      await issuesAPI.updateIssueStatus(issueId, status);
+      await updateReportStatus(issueId, status);
       setIssues(
         issues.map((issue) =>
           issue.id === issueId ? { ...issue, status } : issue
@@ -106,7 +104,7 @@ export default function ReportsPage() {
     if (!confirm("Are you sure you want to delete this report?")) return;
 
     try {
-      await issuesAPI.deleteIssue(issueId);
+      await deleteReport(issueId);
       setIssues(issues.filter((issue) => issue.id !== issueId));
     } catch (error) {
       console.error("Failed to delete issue:", error);
@@ -131,7 +129,7 @@ export default function ReportsPage() {
         issue.status,
         issue.upvotes,
         new Date(issue.createdAt).toLocaleDateString(),
-        issue.creator.fullName,
+        issue.creator?.fullName || "Unknown",
       ]),
     ]
       .map((row) => row.join(","))

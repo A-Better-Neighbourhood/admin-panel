@@ -4,7 +4,8 @@
 
 import { useState, useEffect } from "react";
 import { ReportCard } from "@/components/ReportCard";
-import { Issue, issuesAPI } from "@/lib/api";
+import { getReports, updateReportStatus } from "@/actions/report";
+import { Report, ReportStatus } from "@/types/api";
 import { Archive } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
@@ -18,8 +19,8 @@ import {
 } from "@/components/ui/empty";
 
 export default function ArchivedPage() {
-  const [issues, setIssues] = useState<Issue[]>([]);
-  const [filteredIssues, setFilteredIssues] = useState<Issue[]>([]);
+  const [issues, setIssues] = useState<Report[]>([]);
+  const [filteredIssues, setFilteredIssues] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -33,8 +34,10 @@ export default function ArchivedPage() {
 
   const loadArchivedIssues = async () => {
     try {
-      const allIssues = await issuesAPI.getAllIssues();
-      const archived = allIssues.filter((issue) => issue.status === "ARCHIVED");
+      const allIssues = await getReports();
+      const archived = allIssues.filter(
+        (issue) => issue.status === ReportStatus.ARCHIVED
+      );
       setIssues(archived);
     } catch (error) {
       console.error("Failed to load archived issues:", error);
@@ -57,14 +60,11 @@ export default function ArchivedPage() {
     setFilteredIssues(filtered);
   };
 
-  const handleStatusChange = async (
-    issueId: string,
-    status: Issue["status"]
-  ) => {
+  const handleStatusChange = async (issueId: string, status: ReportStatus) => {
     try {
-      await issuesAPI.updateIssueStatus(issueId, status);
+      await updateReportStatus(issueId, status);
       // Remove from archived list if status changed
-      if (status !== "ARCHIVED") {
+      if (status !== ReportStatus.ARCHIVED) {
         setIssues(issues.filter((issue) => issue.id !== issueId));
       }
     } catch (error) {

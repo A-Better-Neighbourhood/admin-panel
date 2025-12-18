@@ -3,24 +3,16 @@
 "use client";
 
 import Image from "next/image";
-import { Issue } from "@/lib/api";
+import { Report, ReportStatus } from "@/types/api";
 import {
   MapPin,
   Calendar,
   ThumbsUp,
   User,
   Images,
-  MoreVertical,
+  FileText,
 } from "lucide-react";
-import { Button } from "./ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
-import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
+import { Card, CardContent, CardHeader } from "./ui/card";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -31,18 +23,19 @@ import {
   DialogDescription,
 } from "./ui/dialog";
 import { reverseGeocode, formatAddress, Address } from "@/lib/geocoding";
-import { Badge } from "@/components/ui/badge"; // Assuming we have Badge or need to simulate it
 
 // Helper for status badge
-const getStatusStyles = (status: Issue["status"]) => {
+const getStatusStyles = (status: ReportStatus) => {
   const styles = {
-    PENDING: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-    IN_PROGRESS: "bg-primary/20 text-primary hover:bg-primary/30",
-    RESOLVED:
+    [ReportStatus.PENDING]:
+      "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+    [ReportStatus.IN_PROGRESS]:
+      "bg-primary/20 text-primary hover:bg-primary/30",
+    [ReportStatus.RESOLVED]:
       "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400",
-    ARCHIVED: "bg-muted text-muted-foreground hover:bg-muted/80",
+    [ReportStatus.ARCHIVED]: "bg-muted text-muted-foreground hover:bg-muted/80",
   };
-  return styles[status] || styles.PENDING;
+  return styles[status] || styles[ReportStatus.PENDING];
 };
 
 const formatDate = (dateString: string) => {
@@ -54,8 +47,8 @@ const formatDate = (dateString: string) => {
 };
 
 interface ReportCardProps {
-  issue: Issue;
-  onStatusChange?: (issueId: string, status: Issue["status"]) => void;
+  issue: Report;
+  onStatusChange?: (issueId: string, status: ReportStatus) => void;
   onDelete?: (issueId: string) => void;
 }
 
@@ -71,10 +64,12 @@ export function ReportCard({
 
   useEffect(() => {
     const fetchAddress = async () => {
-      setLoadingAddress(true);
-      const addr = await reverseGeocode(issue.latitude, issue.longitude);
-      setAddress(addr);
-      setLoadingAddress(false);
+      if (issue.latitude && issue.longitude) {
+        setLoadingAddress(true);
+        const addr = await reverseGeocode(issue.latitude, issue.longitude);
+        setAddress(addr);
+        setLoadingAddress(false);
+      }
     };
     fetchAddress();
   }, [issue.latitude, issue.longitude]);
@@ -93,9 +88,9 @@ export function ReportCard({
               >
                 {issue.status.replace("_", " ")}
               </span>
-              {issue.isDuplicate && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-destructive/10 text-destructive">
-                  Duplicate
+              {issue.duplicateCount > 0 && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-orange-100 text-orange-700">
+                  {issue.duplicateCount} Dups
                 </span>
               )}
             </div>
@@ -154,7 +149,9 @@ export function ReportCard({
           <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground bg-muted/30 p-2 rounded-md">
             <div className="flex items-center gap-1.5 min-w-0">
               <User className="h-3.5 w-3.5 flex-shrink-0" />
-              <span className="truncate">{issue.creator.fullName}</span>
+              <span className="truncate">
+                {issue.creator?.fullName || "User"}
+              </span>
             </div>
             <div className="flex items-center gap-1.5">
               <ThumbsUp className="h-3.5 w-3.5 flex-shrink-0 text-primary" />
@@ -187,7 +184,7 @@ export function ReportCard({
               </span>
             </div>
             <DialogDescription>
-              Reported by {issue.creator.fullName} on{" "}
+              Reported by {issue.creator?.fullName} on{" "}
               {formatDate(issue.createdAt)}
             </DialogDescription>
           </DialogHeader>
@@ -275,6 +272,3 @@ export function ReportCard({
     </>
   );
 }
-
-// Fallback Icon component import fix
-import { FileText } from "lucide-react";

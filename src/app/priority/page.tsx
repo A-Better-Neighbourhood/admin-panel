@@ -4,7 +4,8 @@
 
 import { useState, useEffect } from "react";
 import { ReportCard } from "@/components/ReportCard";
-import { Issue, issuesAPI } from "@/lib/api";
+import { getReports, updateReportStatus, deleteReport } from "@/actions/report";
+import { Report, ReportStatus } from "@/types/api";
 import { AlertCircle, TrendingUp } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
@@ -16,7 +17,7 @@ import {
 } from "@/components/ui/empty";
 
 export default function PriorityReportsPage() {
-  const [issues, setIssues] = useState<Issue[]>([]);
+  const [issues, setIssues] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,7 +26,7 @@ export default function PriorityReportsPage() {
 
   const loadPriorityIssues = async () => {
     try {
-      const allIssues = await issuesAPI.getAllIssues();
+      const allIssues = await getReports();
 
       // Calculate current time once
       const now = Date.now();
@@ -34,15 +35,18 @@ export default function PriorityReportsPage() {
       const priorityIssues = allIssues
         .filter(
           (issue) =>
-            (issue.status === "PENDING" || issue.status === "IN_PROGRESS") &&
-            !issue.isDuplicate
+            (issue.status === ReportStatus.PENDING ||
+              issue.status === ReportStatus.IN_PROGRESS) &&
+            issue.duplicateCount === 0 // Assuming duplicateCount 0 means unique
         )
         .sort((a, b) => {
           // Sort by upvotes and recency
           const scoreA =
-            a.upvotes * 2 + (now - new Date(a.createdAt).getTime()) / 1000000;
+            (a.upvotes || 0) * 2 +
+            (now - new Date(a.createdAt).getTime()) / 1000000;
           const scoreB =
-            b.upvotes * 2 + (now - new Date(b.createdAt).getTime()) / 1000000;
+            (b.upvotes || 0) * 2 +
+            (now - new Date(b.createdAt).getTime()) / 1000000;
           return scoreB - scoreA;
         })
         .slice(0, 20); // Top 20 priority issues
@@ -55,12 +59,9 @@ export default function PriorityReportsPage() {
     }
   };
 
-  const handleStatusChange = async (
-    issueId: string,
-    status: Issue["status"]
-  ) => {
+  const handleStatusChange = async (issueId: string, status: ReportStatus) => {
     try {
-      await issuesAPI.updateIssueStatus(issueId, status);
+      await updateReportStatus(issueId, status);
       setIssues(
         issues.map((issue) =>
           issue.id === issueId ? { ...issue, status } : issue
@@ -75,7 +76,7 @@ export default function PriorityReportsPage() {
     if (!confirm("Are you sure you want to delete this report?")) return;
 
     try {
-      await issuesAPI.deleteIssue(issueId);
+      await deleteReport(issueId);
       setIssues(issues.filter((issue) => issue.id !== issueId));
     } catch (error) {
       console.error("Failed to delete issue:", error);
