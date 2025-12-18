@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { BASE_URL } from "@/lib/api";
 
 interface User {
   id: string;
@@ -44,7 +45,7 @@ export default function UsersPage() {
 
   const loadUsers = async () => {
     try {
-      const response = await fetch("http://localhost:3080/api/users", {
+      const response = await fetch(`${BASE_URL}/users`, {
         credentials: "include",
       });
 
