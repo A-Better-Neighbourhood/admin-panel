@@ -63,28 +63,28 @@ export default function DashboardPage() {
           name: "Total Reports",
           value: stats.total.toString(),
           icon: FileText,
-          href: "/dashboard/reports",
+          href: "/reports",
           color: "blue",
         },
         {
           name: "Pending",
           value: stats.pending.toString(),
           icon: AlertCircle,
-          href: "/dashboard/reports?status=PENDING",
+          href: "/reports?status=PENDING",
           color: "yellow",
         },
         {
           name: "In Progress",
           value: stats.inProgress.toString(),
           icon: TrendingUp,
-          href: "/dashboard/reports?status=IN_PROGRESS",
+          href: "/reports?status=IN_PROGRESS",
           color: "blue",
         },
         {
           name: "Resolved",
           value: stats.resolved.toString(),
           icon: CheckCircle,
-          href: "/dashboard/resolved",
+          href: "/resolved",
           color: "green",
         },
       ]
@@ -187,7 +187,7 @@ export default function DashboardPage() {
                             <FileText className="h-4 w-4 text-primary" />
                           </div>
                           <Link
-                            href={`/dashboard/reports/${report.id}`}
+                            href={`/reports/${report.id}`}
                             className="hover:underline truncate max-w-[200px] md:max-w-xs block"
                           >
                             {report.title}
@@ -213,7 +213,7 @@ export default function DashboardPage() {
                           asChild
                           className="h-8 w-8"
                         >
-                          <Link href={`/dashboard/reports/${report.id}`}>
+                          <Link href={`/reports/${report.id}`}>
                             <ArrowRight className="h-4 w-4" />
                           </Link>
                         </Button>

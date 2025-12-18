@@ -6,7 +6,13 @@ import { useState, useEffect } from "react";
 import { ReportCard } from "@/components/ReportCard";
 import { Issue, issuesAPI } from "@/lib/api";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -173,17 +179,27 @@ export default function ReportsPage() {
 
             <div className="flex gap-4">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <option value="ALL">All Status</option>
-                <option value="PENDING">Pending</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="RESOLVED">Resolved</option>
-                <option value="ARCHIVED">Archived</option>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Status</SelectItem>
+                  <SelectItem value="PENDING">Pending</SelectItem>
+                  <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                  <SelectItem value="RESOLVED">Resolved</SelectItem>
+                  <SelectItem value="ARCHIVED">Archived</SelectItem>
+                </SelectContent>
               </Select>
 
               <Select value={sortBy} onValueChange={setSortBy}>
-                <option value="recent">Most Recent</option>
-                <option value="oldest">Oldest First</option>
-                <option value="upvotes">Most Upvoted</option>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="recent">Most Recent</SelectItem>
+                  <SelectItem value="oldest">Oldest First</SelectItem>
+                  <SelectItem value="upvotes">Most Upvoted</SelectItem>
+                </SelectContent>
               </Select>
 
               <Button variant="outline" onClick={exportToCSV}>

@@ -13,7 +13,13 @@ import {
   MoreVertical,
 } from "lucide-react";
 import { Button } from "./ui/button";
-import { Select } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -95,7 +101,7 @@ export function ReportCard({
             </div>
             <h3
               className="font-bold text-base leading-tight cursor-pointer hover:text-primary transition-colors truncate"
-              onClick={() => router.push(`/dashboard/reports/${issue.id}`)}
+              onClick={() => router.push(`/reports/${issue.id}`)}
               title={issue.title}
             >
               {issue.title}
@@ -164,54 +170,6 @@ export function ReportCard({
             </div>
           </div>
         </CardContent>
-
-        {/* Card Footer: Actions */}
-        <CardFooter className="p-4 pt-0 border-t border-border/50 bg-muted/5 mt-auto">
-          <div className="w-full pt-3 flex items-center justify-between gap-3">
-            <div className="flex-1">
-              <Select
-                value={issue.status}
-                onValueChange={(val) =>
-                  onStatusChange?.(issue.id, val as Issue["status"])
-                }
-              >
-                <option value="PENDING">Pending</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="RESOLVED">Resolved</option>
-                <option value="ARCHIVED">Archived</option>
-              </Select>
-            </div>
-            {onDelete && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                onClick={() => onDelete(issue.id)}
-                title="Delete Report"
-              >
-                <span className="sr-only">Delete</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-trash-2"
-                >
-                  <path d="M3 6h18" />
-                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                  <line x1="10" x2="10" y1="11" y2="17" />
-                  <line x1="14" x2="14" y1="11" y2="17" />
-                </svg>
-              </Button>
-            )}
-          </div>
-        </CardFooter>
       </Card>
 
       {/* Images Dialog */}

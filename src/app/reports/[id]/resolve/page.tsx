@@ -1,3 +1,5 @@
+/** @format */
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -37,9 +39,12 @@ export default function ResolveReportPage() {
       const foundReport = data.find((r) => r.id === reportId);
       if (foundReport) {
         setReport(foundReport);
-        
+
         // Fetch address
-        const addr = await reverseGeocode(foundReport.latitude, foundReport.longitude);
+        const addr = await reverseGeocode(
+          foundReport.latitude,
+          foundReport.longitude
+        );
         setAddress(addr);
       }
     } catch (error) {
@@ -88,8 +93,6 @@ export default function ResolveReportPage() {
     }
   };
 
-
-
   const handleSubmit = async () => {
     if (!resolutionImage || !resolutionNote.trim()) {
       alert("Please capture/upload an image and add resolution notes.");
@@ -106,7 +109,7 @@ export default function ResolveReportPage() {
 
       setSuccess(true);
       setTimeout(() => {
-        router.push("/dashboard/reports");
+        router.push("/reports");
       }, 2000);
     } catch (error) {
       console.error("Failed to resolve report:", error);
@@ -131,7 +134,7 @@ export default function ResolveReportPage() {
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
             Report Not Found
           </h1>
-          <Button onClick={() => router.push("/dashboard/reports")}>
+          <Button onClick={() => router.push("/reports")}>
             Back to Reports
           </Button>
         </div>
@@ -165,7 +168,7 @@ export default function ResolveReportPage() {
         <div className="mb-8">
           <Button
             variant="ghost"
-            onClick={() => router.push("/dashboard/reports")}
+            onClick={() => router.push("/reports")}
             className="mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -240,7 +243,8 @@ export default function ResolveReportPage() {
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline text-xs"
                     >
-                      {report.latitude.toFixed(6)}, {report.longitude.toFixed(6)}
+                      {report.latitude.toFixed(6)},{" "}
+                      {report.longitude.toFixed(6)}
                     </a>
                   </div>
                 </div>

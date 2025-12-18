@@ -1,3 +1,5 @@
+/** @format */
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -73,9 +75,12 @@ export default function ReportDetailPage() {
       const foundReport = data.find((r) => r.id === reportId);
       if (foundReport) {
         setReport(foundReport);
-        
+
         // Fetch address
-        const addr = await reverseGeocode(foundReport.latitude, foundReport.longitude);
+        const addr = await reverseGeocode(
+          foundReport.latitude,
+          foundReport.longitude
+        );
         setAddress(addr);
 
         // Generate activities based on report data
@@ -99,7 +104,10 @@ export default function ReportDetailPage() {
           mockActivities.push({
             id: `dup-${duplicate.id}`,
             type: "DUPLICATE_MERGED",
-            content: `Duplicate report merged (ID: ${duplicate.id.slice(0, 8)})`,
+            content: `Duplicate report merged (ID: ${duplicate.id.slice(
+              0,
+              8
+            )})`,
             createdBy: duplicate.creator,
             createdAt: duplicate.createdAt,
             metadata: {
@@ -150,7 +158,7 @@ export default function ReportDetailPage() {
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
             Report Not Found
           </h1>
-          <Button onClick={() => router.push("/dashboard/reports")}>
+          <Button onClick={() => router.push("/reports")}>
             Back to Reports
           </Button>
         </div>
@@ -165,7 +173,7 @@ export default function ReportDetailPage() {
         <div className="mb-8">
           <Button
             variant="ghost"
-            onClick={() => router.push("/dashboard/reports")}
+            onClick={() => router.push("/reports")}
             className="mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -210,9 +218,7 @@ export default function ReportDetailPage() {
 
             <div className="flex items-center gap-3">
               <Button
-                onClick={() =>
-                  router.push(`/dashboard/reports/${report.id}/resolve`)
-                }
+                onClick={() => router.push(`/reports/${report.id}/resolve`)}
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
                 Resolve Issue
@@ -327,7 +333,8 @@ export default function ReportDetailPage() {
                       )}
                     </div>
                   </div>
-                ) : activity.type === "DUPLICATE_MERGED" && activity.metadata?.images ? (
+                ) : activity.type === "DUPLICATE_MERGED" &&
+                  activity.metadata?.images ? (
                   // Render Duplicate Merged with Images
                   <div className="flex gap-4 py-4 relative group">
                     <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-200 ml-4 -z-10"></div>
@@ -356,23 +363,26 @@ export default function ReportDetailPage() {
                         <p className="text-gray-800 text-sm mb-3">
                           {activity.content}
                         </p>
-                        {activity.metadata.images && activity.metadata.images.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
-                            {activity.metadata.images.map((img: string, idx: number) => (
-                              <div
-                                key={idx}
-                                className="relative h-24 w-24 rounded-lg overflow-hidden border border-orange-200"
-                              >
-                                <Image
-                                  src={img}
-                                  alt={`Duplicate ${idx + 1}`}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                        {activity.metadata.images &&
+                          activity.metadata.images.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                              {activity.metadata.images.map(
+                                (img: string, idx: number) => (
+                                  <div
+                                    key={idx}
+                                    className="relative h-24 w-24 rounded-lg overflow-hidden border border-orange-200"
+                                  >
+                                    <Image
+                                      src={img}
+                                      alt={`Duplicate ${idx + 1}`}
+                                      fill
+                                      className="object-cover"
+                                    />
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          )}
                       </div>
                     </div>
                   </div>
